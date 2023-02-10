@@ -1,10 +1,6 @@
-from flask import render_template
+from flask import render_template, flash, redirect, url_for
 from app import app
-
-#decorators modify the function that follow it
-#app.route decorator creates an association between the URL given as and arguement and the function
-#When a web browser requests either of the 2 URLS, flask is going to invoke this function and pass the 
-#return value of it back to the browser as a response
+from app.forms import LoginForm
 
 @app.route('/')  #associates the URLS / 
 @app.route('/index') #associates the /index to the function
@@ -22,3 +18,14 @@ def index():
         }
     ]
     return render_template('index.html', title = 'Home', user=user, posts = posts)
+
+@app.route('/login', methods = ['GET', 'POST'])
+#note to self about get post stuff
+#HTTP protocol states that GET requests return information ot the clien (web browser in this case)
+#POST requests are when the browser submits form data to the server
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        flash("Login requested for user {}, remember_me = {}".format(form.username.data, form.remember_me.data))
+        return redirect(url_for('index'))
+    return render_template('login.html', title = 'Sign In', form=form)
